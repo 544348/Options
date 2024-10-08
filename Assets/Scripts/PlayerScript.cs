@@ -15,6 +15,8 @@ public class PlayerScript : MonoBehaviour
     public float turnSmoothTime = 0.1f;
     float turnSmoothVelocity;
     private bool sprinting = false;
+
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
