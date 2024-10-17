@@ -5,16 +5,20 @@ using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-public class PlayerScript : MonoBehaviour
+public class COPY : MonoBehaviour
 {
     [Header("--Camera and movement--")]
     public CharacterController controller;
     public Transform cam;
-    private Rigidbody rb;
-    public float speed = 6f;
+    public Rigidbody rb;
+    public GameObject playerModel;
     public float jumpForce;
+    public float speed = 6f;
     public float sprintSpeed = 12f;
     public float turnSmoothTime = 0.1f;
+    private float horizontal;
+    private float vertical;
+    private Vector3 moveDirection;
     float turnSmoothVelocity;
     private bool sprinting = false;
 
@@ -36,9 +40,13 @@ public class PlayerScript : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.LeftShift))
         {
             sprinting = false;
-            speed = 6;
+            speed = 6f;
             Debug.Log("Sprint should be deactivated");
         }
+    }
+    void jump()
+    {
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Force);
     }
     private void OnTriggerEnter(Collider other)
     {
@@ -52,30 +60,23 @@ public class PlayerScript : MonoBehaviour
     {
 
     }
-    void jump()
-    {
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Force);
-
-    }
     private void FixedUpdate()
     {
-        
+        horizontal = Input.GetAxisRaw("Horizontal") * speed;
+        vertical = Input.GetAxisRaw("Vertical") * speed;
+        rb.velocity = moveDirection;
     }
-
     void Update()
     {
-        float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
-        Vector3 direction = new Vector3(horizontal, 0f, vertical);
-
-        if (direction.magnitude >= 0.1f)
+        moveDirection = transform.forward * vertical + transform.right * horizontal + new Vector3(0, rb.velocity.y, 0);
+        if (vertical == 1 * speed && horizontal == 0)
         {
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
-            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+            playerModel.transform.eulerAngles = Vector3.zero;
 
-            Vector3 moveDir = Quaternion.Euler(0f, targetAngle + rb.velocity.y, 0f) * Vector3.forward;
-            controller.Move(moveDir * speed * Time.deltaTime);
+        }
+        if (vertical == -1 * speed && horizontal == 0)
+        {
+            playerModel.transform.eulerAngles = new Vector3(0, 180, 0);
         }
         if (Input.GetKeyDown(KeyCode.Space))
         {
