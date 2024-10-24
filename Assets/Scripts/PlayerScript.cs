@@ -17,6 +17,9 @@ public class PlayerScript : MonoBehaviour
     public float turnSmoothTime = 0.1f;
     float turnSmoothVelocity;
     private bool sprinting = false;
+    private bool isGrounded;
+    public float groundRaycastDistance;
+    public LayerMask Ground; 
 
 
     void Start()
@@ -68,18 +71,28 @@ public class PlayerScript : MonoBehaviour
         float vertical = Input.GetAxisRaw("Vertical");
         Vector3 direction = new Vector3(horizontal, 0f, vertical);
 
+        isGrounded = Physics.Raycast(gameObject.transform.position, Vector3.down, groundRaycastDistance, Ground);
+        Debug.DrawRay(gameObject.transform.position, Vector3.down * groundRaycastDistance, Color.green);
+
+
         if (direction.magnitude >= 0.1f)
         {
             float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
             transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
-            Vector3 moveDir = Quaternion.Euler(0f, targetAngle + rb.velocity.y, 0f) * Vector3.forward;
-            controller.Move(moveDir * speed * Time.deltaTime);
+            Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+            rb.velocity = (moveDir * speed * Time.deltaTime + new Vector3(0, rb.velocity.y, 0));
+            Debug.Log("Target angle = " + targetAngle);
+            Debug.Log("Move direction = " + moveDir);
+            Debug.Log("velocity = " + rb.velocity);
         }
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            jump();
+            if (isGrounded)
+            {
+                jump();
+            }
         }
         sprint();
     }
