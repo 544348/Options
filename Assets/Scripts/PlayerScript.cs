@@ -11,6 +11,8 @@ public class PlayerScript : MonoBehaviour
     public CharacterController controller;
     public Transform cam;
     private Rigidbody rb;
+    private Animator animator;
+    public GameObject model;
     public float speed = 6f;
     public float jumpForce;
     public float sprintSpeed = 12f;
@@ -27,6 +29,7 @@ public class PlayerScript : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Debug.Log("cursershouldlock");
         rb = GetComponent<Rigidbody>();
+        animator = model.GetComponent<Animator>();
     }
     void sprint()
     {
@@ -69,6 +72,8 @@ public class PlayerScript : MonoBehaviour
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
+        animator.SetFloat("x", horizontal);
+        animator.SetFloat("y", vertical);
         Vector3 direction = new Vector3(horizontal, 0f, vertical);
 
         isGrounded = Physics.Raycast(gameObject.transform.position, Vector3.down, groundRaycastDistance, Ground);

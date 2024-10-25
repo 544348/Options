@@ -22,4 +22,9 @@ public class Loadscenes : MonoBehaviour
             Debug.LogWarning("Scene name is not set!");
         }
     }
+    public void Quit()
+    {
+        Application.Quit();
+        Debug.Log("application quit");
+    }
 }
